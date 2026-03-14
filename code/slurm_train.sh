@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# ============================================================
+# CSCI 1430 - Computer Vision, Brown University
+# SLURM job script for HW4: CNNs
+#
+# Usage:
+#   sbatch slurm_train.sh t1_rotation_1img               # runs Task 1
+#   sbatch slurm_train.sh t2_classify_2img               # runs Task 2
+#   sbatch slurm_train.sh t4_endtoend_classify_15scenes  # runs Task 4
+#
+# Monitor your job:
+#   myq                      # check job status
+#   cat slurm-<jobid>.out    # view stdout
+#   cat slurm-<jobid>.err    # view stderr
+# ============================================================
+
+#SBATCH -p gpu
+#SBATCH --gres=gpu:1
+#SBATCH -n 4
+#SBATCH --mem=16G
+#SBATCH -t 02:00:00
+#SBATCH -J hw4_train
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.err
+
+# Default task if none provided as argument
+TASK=${1:-t1_rotation_1img}
+
+echo "============================================"
+echo "Job ID:    $SLURM_JOB_ID"
+echo "Task:      $TASK"
+echo "Node:      $(hostname)"
+echo "Started:   $(date)"
+echo "============================================"
+
+# Run from the code directory
+cd "$(dirname "$0")"
+
+# Run training
+uv run python main.py --task "$TASK"
+
+echo "============================================"
+echo "Finished:  $(date)"
+echo "============================================"

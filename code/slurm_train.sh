@@ -37,6 +37,8 @@ echo "============================================"
 # Run from the code directory
 cd "$(dirname "$0")"
 
+source ~/.local/bin/env
+
 # Run training
 uv run python main.py --task "$TASK"
 

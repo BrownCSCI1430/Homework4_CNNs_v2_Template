@@ -35,7 +35,7 @@ echo "Started:   $(date)"
 echo "============================================"
 
 # Run from the code directory
-cd "$(dirname "$0")"
+cd "$SLURM_SUBMIT_DIR"
 
 source ~/.local/bin/env
 

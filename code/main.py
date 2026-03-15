@@ -1,5 +1,5 @@
 """
-Homework 4 - CNNs: Learning Visual Features
+Homework 4 - Learning Visual Features with CNNs
 CSCI1430 - Computer Vision
 Brown University
 
@@ -38,9 +38,9 @@ APPROACHES = {
     'endtoend':          Approach('End-to-end (from scratch)',    'endtoend_classifier.pt',    'curve_endtoend.npy'),
     'rotation':          Approach('Rotation-pretrained encoder',  'rotation_encoder.pt',       None),
     'classify':          Approach('Classify-pretrained encoder',  'classify_encoder.pt',       None),
+    'frozen_random':     Approach('Frozen random probe',          'frozen_random.pt',          'curve_frozen_random.npy'),
     'frozen_pretrained': Approach('Frozen pretrained probe',      'frozen_pretrained.pt',      'curve_frozen_pretrained.npy'),
-    'frozen_random':     Approach('Frozen random probe',          None,                        'curve_frozen_random.npy'),
-    'finetune':          Approach('Finetune pretrained',          None,                        'curve_finetune.npy'),
+    'finetune':          Approach('Finetune pretrained',          'finetune.pt',               'curve_finetune.npy'),
 }
 
 
@@ -50,7 +50,7 @@ APPROACHES = {
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="HW4: Learning Visual Features")
+        description="HW4: Learning Visual Features with CNNs")
     parser.add_argument('--task', required=True,
                         choices=['t0_endtoend',
                                  't1_rotation', 't1_classify',
@@ -72,7 +72,8 @@ if __name__ == '__main__':
     # ---- Task 0: End-to-end scene classification ----
     if args.task == 't0_endtoend':
         classify_15scenes_data = SceneDataset(
-            os.path.join(args.data, '15-scenes-csci1430'), image_size=IMAGE_SIZE,
+            os.path.join(args.data, '15-scenes-csci1430'),
+            image_size=ENDTOEND_IMAGE_SIZE, batch_size=ENDTOEND_BATCH_SIZE,
         )
         t0_endtoend(classify_15scenes_data, device, APPROACHES)
 
@@ -80,23 +81,24 @@ if __name__ == '__main__':
     elif args.task == 't1_rotation':
         rotation_data = CropRotationDataset(
             os.path.join(args.data, 'single-images', 'train', 'Street'),
-            num_crops=NUM_CROPS, crop_size=CROP_SIZE, rotation=True,
-            batch_size=BATCH_SIZE,
+            num_crops=ROTATION_NUM_CROPS, crop_size=ROTATION_CROP_SIZE,
+            rotation=True, batch_size=ROTATION_BATCH_SIZE,
         )
         t1_rotation(rotation_data, device, APPROACHES)
 
-    # ---- Task 1: Classification pretraining (2 images) ----
+    # ---- Task 1b: Extra Credit: Classification pretraining (2 images) ----
     elif args.task == 't1_classify':
         classify_data = CropRotationDataset(
             os.path.join(args.data, 'single-images', 'train'),
-            num_crops=NUM_CROPS, crop_size=CROP_SIZE, rotation=False,
-            batch_size=BATCH_SIZE,
+            num_crops=CLASSIFY_NUM_CROPS, crop_size=CLASSIFY_CROP_SIZE,
+            rotation=False, batch_size=CLASSIFY_BATCH_SIZE,
         )
         t1_classify(classify_data, device, APPROACHES)
 
     # ---- Task 2: Transfer evaluation ----
     elif args.task == 't2_transfer':
         classify_15scenes_data = SceneDataset(
-            os.path.join(args.data, '15-scenes-csci1430'), image_size=IMAGE_SIZE,
+            os.path.join(args.data, '15-scenes-csci1430'),
+            image_size=ENDTOEND_IMAGE_SIZE, batch_size=TRANSFER_BATCH_SIZE,
         )
         t2_transfer(classify_15scenes_data, device, APPROACHES)

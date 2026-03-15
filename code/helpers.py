@@ -109,3 +109,61 @@ def make_filter_video(frame_dir, output_path='filters.mp4', fps=5):
     frames[0].save(gif_path, save_all=True, append_images=frames[1:],
                    duration=duration_ms, loop=0)
     print(f"Saved {len(frames)}-frame animation -> {gif_path}")
+
+
+def _conv1_diagnostics(encoder, w0, w_prev, epoch, frame_dir):
+    """Print conv1 weight diagnostics and save filter frames (raw + delta)."""
+    w = encoder.layers[0].weight.data.cpu()
+    diff_from_init = (w - w0).abs().mean().item()
+    diff_from_prev = (w - w_prev[0]).abs().mean().item()
+    mag = w.abs().mean().item()
+    w_std = w.std().item()
+
+    grad_str = ""
+    if encoder.layers[0].weight.grad is not None:
+        grad_norm = encoder.layers[0].weight.grad.data.abs().mean().item()
+        grad_str = f"  grad={grad_norm:.6f}"
+
+    print(f"  conv1: diff_init={diff_from_init:.4f}  diff_ep={diff_from_prev:.5f}  "
+          f"|w|={mag:.4f}  std={w_std:.4f}  ratio={diff_from_init/mag:.0%}{grad_str}",
+          flush=True)
+
+    save_filter_frame(encoder, epoch, output_dir=frame_dir)
+
+    # Save delta filter frame (w - w0) — shows what the network learned
+    delta_dir = frame_dir + '_delta'
+    os.makedirs(delta_dir, exist_ok=True)
+    import matplotlib
+    matplotlib.use('Agg')
+    delta = w - w0
+    n = delta.shape[0]
+    cols, rows = 8, (n + 7) // 8
+    fig, axes = plt.subplots(rows, cols, figsize=(cols, rows))
+    for i, ax in enumerate(axes.flat):
+        if i < n:
+            f = delta[i]
+            f = (f - f.min()) / (f.max() - f.min() + 1e-8)
+            ax.imshow(f.permute(1, 2, 0).numpy())
+        ax.axis('off')
+    plt.suptitle(f'Learned Delta (w - w0) -- Epoch {epoch + 1}')
+    plt.tight_layout()
+    plt.savefig(os.path.join(delta_dir, f'epoch_{epoch:03d}.png'), dpi=100, bbox_inches='tight')
+    plt.close(fig)
+
+    w_prev[0] = w.clone()
+
+
+def make_filter_callback(encoder, frame_dir, filter_save_path):
+    """Create an on_epoch_end callback for filter visualization.
+
+    Usage:
+        callback = make_filter_callback(encoder, 'filter_frames_rotation',
+                                        'conv1_filters_rotation.png')
+        train_loop(..., on_epoch_end=callback)
+    """
+    w0 = encoder.layers[0].weight.data.cpu().clone()
+    w_prev = [w0.clone()]
+    def callback(epoch, model):
+        _conv1_diagnostics(encoder, w0, w_prev, epoch, frame_dir)
+        visualize_filters(encoder, save_path=filter_save_path)
+    return callback

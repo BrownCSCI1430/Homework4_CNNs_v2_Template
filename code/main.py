@@ -1,25 +1,13 @@
 """
-Homework 4 - CNNs
+Homework 4 - CNNs: Learning Visual Features
 CSCI1430 - Computer Vision
 Brown University
 
-What happens when we train encoder architectures with different
-data and supervision? This homework explores how these choices
-affect the features a CNN learns for a downstream task.
+Task 0: Design a CNN and train it end-to-end on 15-scene classification.
+Task 1: Learn features via self-supervised pretraining, without labels.
+Task 2: Transfer pretrained features to 15-scenes — can you beat Task 0?
 
-    uv run python main.py --task <task>
-
-Task:   Args:                           Description:
- 0      -                               Set up your data loaders
- 1      t1_rotation_1img                Train filters with self-supervised rotation.
-                                        One image dataset 'Ameyoko' street scene only!
- 2      t2_classify_2img                Train filters with supervised labels.
-                                        Two images dataset 'Ameyoko/Squeeky Beach' only (one per class).
- 3      t3_pretrained_classify_15scenes Use filters from T1, T2 to train a classification head
-                                        on the 15-scenes dataset.
- 4      t4_endtoend_classify_15scenes   Design your own SceneClassifier and train it
-                                        end-to-end on the 15-scenes dataset.
- 5      t5_compare                      Compare the performance of features learned in each!
+    uv run python main.py --task <task_name>
 """
 
 import os
@@ -35,56 +23,41 @@ import torch
 
 from student import (
     SceneDataset, CropRotationDataset,
-    t1_rotation_1img, t2_classify_2img,
-    t3_pretrained_classify_15scenes, t4_endtoend_classify_15scenes,
+    t0_endtoend, t1_rotation, t1_classify, t2_transfer,
 )
 from hyperparameters import *
 
-# ========================================================================
-#  Task 5: Compare — how do different initializations affect learning?
-#
-#  Load the learning curves saved by Tasks 3 & 4 and plot them side by side.
-# ========================================================================
-
-def t5_compare():
-    # Load saved curves from Tasks 3 & 4
-    fig, ax = plt.subplots(figsize=(8, 5))
-    for approach in APPROACHES.values():
-        accs = np.load(approach.curve)
-        ax.plot(range(1, len(accs) + 1), accs, label=approach.label)
-        print(f"Loaded {approach.curve}: {len(accs)} epochs, best val {max(accs):.3f}")
-
-    ax.set_xlabel('Epoch')
-    ax.set_ylabel('Validation Accuracy')
-    ax.legend()
-    ax.set_title('Effect of Pretraining on Downstream Classification')
-    plt.tight_layout()
-    plt.savefig('pretrain_comparison.png', dpi=150)
-    print("Saved pretrain_comparison.png")
-
 
 # ========================================================================
-#  Dispatch plumbing
+#  File naming conventions
 # ========================================================================
 
 Approach = namedtuple('Approach', ['label', 'weights', 'curve'])
 
 APPROACHES = {
-    'random':    Approach('Random features',                            None,                            'curve_random.npy'),
-    'rotation':  Approach('Pretrained rotation task (1 image)',         'rotation_1img_encoder.pt',      'curve_rotation_1img_encoder.npy'),
-    'classify':  Approach('Pretrained classify task (2 images)',        'classify_2img_encoder.pt',      'curve_classify_2img_encoder.npy'),
-    'endtoend':  Approach('End-to-end (1,500 images SceneClassifier)',  'endtoend_classify_15scenes.pt', 'curve_endtoend_classify.npy'),
+    'endtoend':          Approach('End-to-end (from scratch)',    'endtoend_classifier.pt',    'curve_endtoend.npy'),
+    'rotation':          Approach('Rotation-pretrained encoder',  'rotation_encoder.pt',       None),
+    'classify':          Approach('Classify-pretrained encoder',  'classify_encoder.pt',       None),
+    'frozen_pretrained': Approach('Frozen pretrained probe',      'frozen_pretrained.pt',      'curve_frozen_pretrained.npy'),
+    'frozen_random':     Approach('Frozen random probe',          None,                        'curve_frozen_random.npy'),
+    'finetune':          Approach('Finetune pretrained',          None,                        'curve_finetune.npy'),
 }
+
+
+# ========================================================================
+#  Dispatch
+# ========================================================================
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="HW4: Pretraining an Encoder")
+        description="HW4: Learning Visual Features")
     parser.add_argument('--task', required=True,
-                        choices=['t1_rotation_1img', 't2_classify_2img',
-                                 't3_pretrained_classify_15scenes',
-                                 't4_endtoend_classify_15scenes', 't5_compare'])
+                        choices=['t0_endtoend',
+                                 't1_rotation', 't1_classify',
+                                 't2_transfer'])
     parser.add_argument('--data', default=os.path.join('..', 'data'))
     return parser.parse_args()
+
 
 if __name__ == '__main__':
     args = parse_args()
@@ -96,36 +69,34 @@ if __name__ == '__main__':
     )
     print(f"Using device: {device}")
 
-    # Task 0: Load all datasets
-    #
-    # Our main task dataset
-    classify_15scenes_data = SceneDataset(
-        os.path.join(args.data, '15-scenes-csci1430'), image_size=IMAGE_SIZE,
-    )
+    # ---- Task 0: End-to-end scene classification ----
+    if args.task == 't0_endtoend':
+        classify_15scenes_data = SceneDataset(
+            os.path.join(args.data, '15-scenes-csci1430'), image_size=IMAGE_SIZE,
+        )
+        t0_endtoend(classify_15scenes_data, device, APPROACHES)
 
-    # Our rotation self-supervised dataset for a single Ameyoko street scene
-    rotation_1img_data = CropRotationDataset(
-        os.path.join(args.data, 'single-images', 'train', 'Street'),
-        num_crops=NUM_CROPS, crop_size=IMAGE_SIZE, rotation=True,
-        batch_size=BATCH_SIZE,
-    )
+    # ---- Task 1: Rotation pretraining (1 image) ----
+    elif args.task == 't1_rotation':
+        rotation_data = CropRotationDataset(
+            os.path.join(args.data, 'single-images', 'train', 'Street'),
+            num_crops=NUM_CROPS, crop_size=CROP_SIZE, rotation=True,
+            batch_size=BATCH_SIZE,
+        )
+        t1_rotation(rotation_data, device, APPROACHES)
 
-    # Our classification task but just with two images:
-    # Ameyoko (Street class) and Squeeky Beach (Coast class)
-    classify_2img_data = CropRotationDataset(
-        os.path.join(args.data, 'single-images', 'train'),
-        num_crops=NUM_CROPS, crop_size=IMAGE_SIZE, rotation=False,
-        batch_size=BATCH_SIZE,
-    )
+    # ---- Task 1: Classification pretraining (2 images) ----
+    elif args.task == 't1_classify':
+        classify_data = CropRotationDataset(
+            os.path.join(args.data, 'single-images', 'train'),
+            num_crops=NUM_CROPS, crop_size=CROP_SIZE, rotation=False,
+            batch_size=BATCH_SIZE,
+        )
+        t1_classify(classify_data, device, APPROACHES)
 
-    # Tasks 1-5: Execute the selected task
-    if args.task == 't1_rotation_1img':
-        t1_rotation_1img(rotation_1img_data, device, APPROACHES)
-    elif args.task == 't2_classify_2img':
-        t2_classify_2img(classify_2img_data, device, APPROACHES)
-    elif args.task == 't3_pretrained_classify_15scenes':
-        t3_pretrained_classify_15scenes(classify_15scenes_data, device, APPROACHES)
-    elif args.task == 't4_endtoend_classify_15scenes':
-        t4_endtoend_classify_15scenes(classify_15scenes_data, device, APPROACHES)
-    elif args.task == 't5_compare':
-        t5_compare()
+    # ---- Task 2: Transfer evaluation ----
+    elif args.task == 't2_transfer':
+        classify_15scenes_data = SceneDataset(
+            os.path.join(args.data, '15-scenes-csci1430'), image_size=IMAGE_SIZE,
+        )
+        t2_transfer(classify_15scenes_data, device, APPROACHES)

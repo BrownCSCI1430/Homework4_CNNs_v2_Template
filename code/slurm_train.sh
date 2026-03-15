@@ -5,9 +5,10 @@
 # SLURM job script for HW4: CNNs
 #
 # Usage:
-#   sbatch slurm_train.sh t1_rotation_1img               # runs Task 1
-#   sbatch slurm_train.sh t2_classify_2img               # runs Task 2
-#   sbatch slurm_train.sh t4_endtoend_classify_15scenes  # runs Task 4
+#   sbatch slurm_train.sh t0_endtoend    # runs Task 0
+#   sbatch slurm_train.sh t1_rotation    # runs Task 1 (rotation)
+#   sbatch slurm_train.sh t1_classify    # runs Task 1 (classify)
+#   sbatch slurm_train.sh t2_transfer    # runs Task 2
 #
 # Monitor your job:
 #   myq                      # check job status
@@ -25,7 +26,7 @@
 #SBATCH -e slurm-%j.err
 
 # Default task if none provided as argument
-TASK=${1:-t1_rotation_1img}
+TASK=${1:-t0_endtoend}
 
 echo "============================================"
 echo "Job ID:    $SLURM_JOB_ID"

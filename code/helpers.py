@@ -5,6 +5,7 @@ Brown University
 """
 import os
 import glob
+import subprocess
 import matplotlib.pyplot as plt
 from PIL import Image
 
@@ -67,20 +68,44 @@ def save_filter_frame(encoder, epoch, output_dir='filter_frames'):
     plt.close(fig)
 
 
-def make_filter_video(frame_dir, output_path='filters.gif', duration_ms=200):
-    """Assemble saved filter frames into an animated GIF.
+def make_filter_video(frame_dir, output_path='filters.mp4', fps=5):
+    """Assemble saved filter frames into a video (MP4 via ffmpeg, GIF fallback).
 
     Args:
         frame_dir:   directory containing epoch_000.png, epoch_001.png, ...
-        output_path: where to save the GIF
-        duration_ms: milliseconds per frame (200 = 5 fps)
+        output_path: where to save the video (.mp4 or .gif)
+        fps:         frames per second (default 5)
     """
     paths = sorted(glob.glob(os.path.join(frame_dir, 'epoch_*.png')))
     if not paths:
         print(f"No frames found in {frame_dir}")
         return
 
+    # Force .mp4 extension
+    if output_path.endswith('.gif'):
+        output_path = output_path[:-4] + '.mp4'
+
+    # Try ffmpeg first (available on CCV cluster nodes)
+    pattern = os.path.join(frame_dir, 'epoch_%03d.png')
+    try:
+        subprocess.run([
+            'ffmpeg', '-y',
+            '-framerate', str(fps),
+            '-i', pattern,
+            '-vcodec', 'libx264',
+            '-pix_fmt', 'yuv420p',
+            '-crf', '18',
+            output_path,
+        ], check=True, capture_output=True)
+        print(f"Saved {len(paths)}-frame video -> {output_path}")
+        return
+    except (FileNotFoundError, subprocess.CalledProcessError) as e:
+        print(f"ffmpeg unavailable ({e}), falling back to GIF")
+
+    # Fallback: GIF via PIL
+    gif_path = output_path.replace('.mp4', '.gif')
     frames = [Image.open(p) for p in paths]
-    frames[0].save(output_path, save_all=True, append_images=frames[1:],
+    duration_ms = 1000 // fps
+    frames[0].save(gif_path, save_all=True, append_images=frames[1:],
                    duration=duration_ms, loop=0)
-    print(f"Saved {len(frames)}-frame animation -> {output_path}")
+    print(f"Saved {len(frames)}-frame animation -> {gif_path}")

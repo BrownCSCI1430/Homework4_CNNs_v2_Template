@@ -308,8 +308,10 @@ def t1_rotation(rotation_data, device, approaches):
     #            make_filter_video('filter_frames_rotation', 'filters_rotation.mp4')
     #            make_filter_video('filter_frames_rotation_delta', 'filters_rotation_delta.mp4')
     
-    #     6. Save encoder.state_dict() to approaches['rotation'].weights
-    #        This will automatically create the required 
+    #     6. Save loss accuracies to approaches['rotation'].curve
+
+    #     7. Save encoder.state_dict() to approaches['rotation'].weights
+    #        
     pass
 
 

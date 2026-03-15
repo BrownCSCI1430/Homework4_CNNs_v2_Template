@@ -5,7 +5,7 @@ Brown University
 
 Hyperparameters for all tasks. Adjust these if you want to experiment.
 """
-MAX_PARAMS = 10_000_000   # max number of parameters in your model
+MAX_PARAMS = 10_000_000   # max number of parameters in each of your models
                           # we will count them directly from your .pt in the autograder
 
 # -- Task 0: End-to-end scene classification --

@@ -36,8 +36,8 @@ Approach = namedtuple('Approach', ['label', 'weights', 'curve'])
 
 APPROACHES = {
     'endtoend':          Approach('End-to-end (from scratch)',    'endtoend_classifier.pt',    'curve_endtoend.npy'),
-    'rotation':          Approach('Rotation-pretrained encoder',  'rotation_encoder.pt',       None),
-    'classify':          Approach('Classify-pretrained encoder',  'classify_encoder.pt',       None),
+    'rotation':          Approach('Rotation-pretrained encoder',  'rotation_encoder.pt',       'curve_rotation_encoder.npy'),
+    'classify':          Approach('Classify-pretrained encoder',  'classify_encoder.pt',       'curve_classify_encoder.npy'),
     'frozen_random':     Approach('Frozen random probe',          'frozen_random.pt',          'curve_frozen_random.npy'),
     'frozen_pretrained': Approach('Frozen pretrained probe',      'frozen_pretrained.pt',      'curve_frozen_pretrained.npy'),
     'finetune':          Approach('Finetune pretrained',          'finetune.pt',               'curve_finetune.npy'),
@@ -53,7 +53,8 @@ def parse_args():
         description="HW4: Learning Visual Features with CNNs")
     parser.add_argument('--task', required=True,
                         choices=['t0_endtoend',
-                                 't1_rotation', 't1_classify',
+                                 't1_rotation', 
+                                 't1_classify', # Extra credit
                                  't2_transfer'])
     parser.add_argument('--data', default=os.path.join('..', 'data'))
     return parser.parse_args()

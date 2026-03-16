@@ -6,8 +6,7 @@
 #
 # Usage:
 #   sbatch slurm_train.sh t0_endtoend    # runs Task 0
-#   sbatch slurm_train.sh t1_rotation    # runs Task 1 (rotation)
-#   sbatch slurm_train.sh t1_classify    # runs Task 1 (classify)
+#   sbatch slurm_train.sh t1_rotation    # runs Task 1
 #   sbatch slurm_train.sh t2_transfer    # runs Task 2
 #
 # Monitor your job:

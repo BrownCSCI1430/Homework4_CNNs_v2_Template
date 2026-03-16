@@ -62,9 +62,9 @@ class SceneDataset:
         val_set = datasets.ImageFolder(os.path.join(data_dir, 'val'), transform)
         test_set = datasets.ImageFolder(os.path.join(data_dir, 'test'), transform)
 
-        self.train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=0)
-        self.val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False, num_workers=0)
-        self.test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False, num_workers=0)
+        self.train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers = 0 if os.name == 'nt' else 4)
+        self.val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False, num_workers = 0 if os.name == 'nt' else 4)
+        self.test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False, num_workers = 0 if os.name == 'nt' else 4)
         self.classes = train_set.classes
         self.num_classes = len(self.classes)
 
@@ -330,7 +330,7 @@ def t2_transfer(classify_15scenes_data, device, approaches):
     """
     # Reproducible initialization — do not remove
     torch.manual_seed(BROWN_ID)
-    
+
     # TODO:
 
     #     1. Frozen random features + linear classification head

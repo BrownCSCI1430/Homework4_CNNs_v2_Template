@@ -94,11 +94,9 @@ def train_loop(model, train_loader, optimizer, loss, epochs,
         on_epoch_end:   optional callback, called as on_epoch_end(epoch, model)
 
     Returns:
-        List of training losses         (float, one per epoch).
         List of training accuracies     (float, one per epoch).
         List of validation accuracies   (float, one per epoch); empty if val_loader is None.
     """
-    train_loss = []
     train_accs = []
     val_accs = []
     
@@ -117,7 +115,7 @@ def train_loop(model, train_loader, optimizer, loss, epochs,
 
     #     e. If on_epoch_end is not None, call it: on_epoch_end(epoch, model)
 
-    return train_loss, train_accs, val_accs
+    return train_accs, val_accs
 
 
 # Part B: Design your SceneClassifier
@@ -136,8 +134,10 @@ class SceneClassifier(nn.Module):
             
         # TODO: Design a CNN with these requirements:
         #     - self.encoder: nn.Module — the convolutional feature extractor
+        #     - self.encoder should end with AdaptiveAvgPool2d(1)
+        #       so it works at any input resolution
         #     - self.head: nn.Module — the classification head
-        #         (typically: AdaptiveAvgPool2d(1) -> Flatten -> Linear -> ... -> Linear(num_classes))
+        #         (typically: Flatten -> Linear(encoder_channels, ...) -> ... -> Linear(num_classes))
         #     - self.encoder_channels: int — number of output channels from encoder
         #     - forward(x) returns logits of shape (batch_size, num_classes)
 
@@ -160,11 +160,12 @@ def t0_endtoend(classify_15scenes_data, device, approaches):
 
     # TODO:
     #     1. Create a SceneClassifier and move it to device.
-    #     3. Create an optimizer and a loss.
-    #     4. Call train_loop with hp.ENDTOEND_EPOCHS epochs,
+    #     2. Create an optimizer and a loss.
+    #     3. Call train_loop with hp.ENDTOEND_EPOCHS epochs,
     #        passing classify_15scenes_data.val_loader for validation.
-    #     5. Save classifier.state_dict() to approaches['endtoend'].weights
-    #     6. Save the val accuracy list (np.save) to approaches['endtoend'].curve
+    #     4. Save classifier.state_dict() to approaches['endtoend'].weights
+    #     5. Save the val accuracy list to approaches['endtoend'].curve_val
+    #     6. Save the train accuracy list to approaches['endtoend'].curve_train
 
     pass
 
@@ -225,9 +226,10 @@ class CropRotationDataset(Dataset):
         #    rotation=True  -> num_classes = 4 (one per rotation)
         #    rotation=False -> num_classes = number of class subfolders
         #
-        # 3. Load the source images into self.pil_images as PIL images.
-        #    Handle both flat directories and subdirectory layouts.
-        #    Store class indices in self.class_indices.
+        # 3. Load source images as tensors into self.images.
+        #    Use PIL to open each image, convert to a (3, H, W) float tensor
+        #    in [0, 1], and move to device. Handle both flat directories and
+        #    subdirectory layouts. Store class indices in self.class_indices.
         #    Note: Most datasets are too large to load all at once.
         #    We have a tiny dataset — just one or two images. So, it's ok.
         #
@@ -235,8 +237,7 @@ class CropRotationDataset(Dataset):
         #    self.train_loader = DataLoader(self, batch_size=batch_size,
         #                                  shuffle=True, num_workers=0)
         #
-        # 5. Create a random crop transform for use in __getitem__
-        #    (e.g., RandomResizedCrop(crop_size, ...)) and a ToTensor() transform.
+        # 5. Store crop parameters for use in __getitem__.
 
         raise NotImplementedError("TODO: implement CropRotationDataset.__init__")
 
@@ -252,10 +253,10 @@ class CropRotationDataset(Dataset):
                      [Extra Credit] if rotation=False: integer class index {0, 1} (which directory, Street or Coast)
         """
         # TODO:
-        # 1.  Extract a random crop, rotate at random as needed.
-        # 2.  Add any other augmentations that might help.
-        # 3.  Make it a Tensor using your ToTensor().
-        # 4.  Define the label.
+        # 1. Pick a random source image (as a tensor, already on device).
+        # 2. Extract a random crop and rotate it at random as needed.
+        # 3. Add any other augmentations that might help.
+        # 4. Define the label.
 
         raise NotImplementedError("TODO: implement CropRotationDataset.__getitem__")
 
@@ -268,9 +269,9 @@ class PretrainingEncoder(nn.Module):
     Our solution uses ~1M parameters. The challenge is learning good features
     with a minimal architecture — not building a big network.
     """
-    def __init__(self, num_classes=15):
+    def __init__(self):
         super().__init__()
-    
+
         # TODO:
         # Create your own nn.Module class here. Requirements:
         #    - self.layers must be an nn.Sequential
@@ -299,16 +300,16 @@ def t1_rotation(rotation_data, device, approaches):
     #     2. Create an optimizer and a loss.
 
     #     3. Create the filter visualization callback:
-    #            callback = make_filter_callback(encoder, 'filter_frames_rotation',
-    #                                            'conv1_filters_rotation.png')
-    
+    #            callback = make_filter_callback(encoder, 'results/filter_frames_rotation',
+    #                                            'results/conv1_filters_rotation.png')
+
     #     4. Call train_loop with hp.ROTATION_EPOCHS epochs and on_epoch_end=callback.
-    
+
     #     5. Make filter videos:
-    #            make_filter_video('filter_frames_rotation', 'filters_rotation.mp4')
-    #            make_filter_video('filter_frames_rotation_delta', 'filters_rotation_delta.mp4')
+    #            make_filter_video('results/filter_frames_rotation', 'results/filters_rotation.mp4')
+    #            make_filter_video('results/filter_frames_rotation_delta', 'results/filters_rotation_delta.mp4')
     
-    #     6. Save loss accuracies to approaches['rotation'].curve
+    #     6. Save the training accuracy list to approaches['rotation'].curve_train
 
     #     7. Save encoder.state_dict() to approaches['rotation'].weights
     #        
@@ -323,9 +324,24 @@ def t1_classify(classify_data, device, approaches):
     TODO: Same pattern as t1_rotation, but:
         - The linear head has classify_data.num_classes outputs (2, not 4).
         - Use hp.CLASSIFY_LR and hp.CLASSIFY_EPOCHS.
-        - Save frames to 'filter_frames_classify' (and '_delta' variant).
-        - Save filters to 'conv1_filters_classify.png' 
+        - Save frames to 'results/filter_frames_classify' (and '_delta' variant).
+        - Save filters to 'results/conv1_filters_classify.png' 
+        - Save training accuracies to approaches['classify'].curve_train
         - Save encoder to approaches['classify'].weights
+    """
+    pass
+
+
+# Extra Credit: Open-ended self-supervised pretraining
+#
+def t1_ec_pretrain(device, approaches):
+    """Train your encoder with any self-supervised approach you design.
+
+    Use your PretrainingEncoder architecture. The goal: maximize frozen probe
+    accuracy on 15-scenes (evaluated via the leaderboard on a secret test set).
+
+    Save your pretrained encoder weights to 'results/ec_encoder.pt'.
+    Then run t2_transfer to build the frozen probe (ec_frozen.pt).
     """
     pass
 
@@ -352,17 +368,15 @@ def t2_transfer(classify_15scenes_data, device, approaches):
     #        - Put encoder in eval mode: encoder.eval()
     #        - Build a classification head: nn.Sequential(encoder, nn.Flatten(1), nn.Linear(out_dim, num_classes))
     #        - Optimize ONLY the linear head: your_optimizer(model[-1].parameters(), lr=hp.TRANSFER_HEAD_LR)
-    #        - Save validation accuracies to approaches['frozen_random'].curve
+    #        - Save train/val accuracies to approaches['frozen_random'].curve_train / .curve_val
     #        - Save model.state_dict() to approaches['frozen_random'].weights
-
 
     #     2. Frozen pretrained features + linear classification head:
     #        - Same workflow as above, but...
     #        - Create your encoder with loaded weights from approaches['rotation'].weights
     #        - FREEZE the encoder, put it in eval mode, build the classification head, optimize it.
-    #        - Save validation accuracies to approaches['frozen_pretrained'].curve
+    #        - Save train/val accuracies to approaches['frozen_pretrained'].curve_train / .curve_val
     #        - Save model.state_dict() to approaches['frozen_pretrained'].weights
-
 
     #     3. Finetune your pretrained features + linear classification head:
     #        - Same as above, but this time do NOT freeze your pretrained weights.
@@ -371,6 +385,12 @@ def t2_transfer(classify_15scenes_data, device, approaches):
     #                {'params': encoder.parameters(), 'lr': hp.TRANSFER_ENCODER_LR},
     #                {'params': head.parameters(), 'lr': hp.TRANSFER_HEAD_LR},
     #            ])
-    #        - Save validation accuracies to approaches['finetune'].curve
+    #        - Save train/val accuracies to approaches['finetune'].curve_train / .curve_val
     #        - Save model.state_dict() to approaches['finetune'].weights
+
+    #     4. [Extra Credit] If 'results/ec_encoder.pt' exists, run frozen probe with it:
+    #        - Same workflow as experiment 2, but load from 'results/ec_encoder.pt'.
+    #        - Save train/val accuracies to approaches['ec_frozen'].curve_train / .curve_val
+    #        - Save model.state_dict() to approaches['ec_frozen'].weights
+
     pass

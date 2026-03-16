@@ -38,7 +38,7 @@ def visualize_filters(model, save_path=None):
     plt.show()
 
 
-def save_filter_frame(encoder, epoch, output_dir='filter_frames'):
+def save_filter_frame(encoder, epoch, output_dir='results/filter_frames'):
     """Save one frame of conv1 filter visualization for the given epoch.
 
     Call this from an on_epoch_end callback during training.
@@ -157,8 +157,8 @@ def make_filter_callback(encoder, frame_dir, filter_save_path):
     """Create an on_epoch_end callback for filter visualization.
 
     Usage:
-        callback = make_filter_callback(encoder, 'filter_frames_rotation',
-                                        'conv1_filters_rotation.png')
+        callback = make_filter_callback(encoder, 'results/filter_frames_rotation',
+                                        'results/conv1_filters_rotation.png')
         train_loop(..., on_epoch_end=callback)
     """
     w0 = encoder.layers[0].weight.data.cpu().clone()

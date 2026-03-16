@@ -21,7 +21,7 @@ import numpy as np
 import hyperparameters as hp
 from helpers import visualize_filters, make_filter_video, make_filter_callback
 
-BANNER_ID = 000000000 # <- replace with your Banner ID; drop the 'B' prefix
+BANNER_ID = 000000000 # <- replace with your Banner ID; drop the 'B' prefix and any leading 0s.
 torch.manual_seed(BANNER_ID)
 np.random.seed(BANNER_ID)
 

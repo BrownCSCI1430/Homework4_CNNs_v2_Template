@@ -1,0 +1,332 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% CSCI 1430 Written Question Template
+%
+% This is a LaTeX document. LaTeX is a markup language for producing documents. 
+% You will fill out this document, compile it into a PDF document, then upload the PDF to Gradescope. 
+%
+% To compile it into a PDF you can:
+% - Use vscode! Install a LaTeX distribution (all common OS): http://www.latex-project.org/get/ 
+% + VSCode extension: https://marketplace.visualstudio.com/items?itemName=James-Yu.latex-workshop
+% - Use an online tool: https://www.overleaf.com/ - most LaTeX packages are pre-installed here (e.g., \usepackage{}).
+%
+% If you need help with LaTeX, please come to office hours.
+% Or, there is plenty of help online:
+% https://en.wikibooks.org/wiki/LaTeX
+%
+% Good luck!
+% The CSCI1430 staff
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass{csci1430}
+
+\begin{document}
+\title{Homework 4 Written Questions}
+\HomeworkShortName{HW4}
+\maketitle
+
+\writeinstructions
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\pagebreak
+\begin{question}[points=8,drawbox=false]
+First, some machine learning warm-up. Given a neural network classifier and the stochastic gradient descent optimizer, discuss how the following variables might affect both the training process and the final outcome (e.g., test accuracy).
+
+\emph{If in doubt, declare your assumptions.}
+\end{question}
+
+\begin{subquestion}[points=2]
+Learning rate. \textbf{[2--3 sentences]}
+\end{subquestion}
+
+\begin{answer}[height=12]
+
+\end{answer}
+
+
+\begin{subquestion}[points=2]
+Batch size. \textbf{[2--3 sentences]}
+\end{subquestion}
+
+\begin{answer}[height=12]
+
+\end{answer}
+
+
+\pagebreak
+\begin{subquestion}[points=2]
+Number of epochs. \textbf{[2--3 sentences]}
+\end{subquestion}
+
+\begin{answer}[height=12]
+
+\end{answer}
+
+
+\begin{subquestion}[points=2]
+Random image augmentations during training, e.g., slight crops, rotations, varying brightness or contrast (color jitter). \textbf{[2--3 sentences]}
+\end{subquestion}
+
+\begin{answer}[height=12]
+
+\end{answer}
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+\pagebreak
+
+\begin{question}[points=18,drawbox=false]
+Many traditional computer vision algorithms use convolution to extract feature representations (e.g., SIFT). Convolutional neural networks (CNNs) also use convolution as an inductive bias, giving the vision system specific geometric properties.
+
+In this question, we will explore what these inductive biases provide and what they do not. First, to definitions and assumptions:
+
+\begin{itemize}
+\item Recall that an operation is \emph{equivariant} to a transformation if transforming the input to that operation produces a correspondingly transformed output. It is \emph{invariant} if the output does not change at all.
+\item Let's define a \emph{global} property as one that holds across the whole image equally, and a \emph{local} property as one that holds only within a region.
+\item Assume discrete integer shifts on an integer grid and ignore boundary padding artifacts.
+\end{itemize}
+
+\end{question}
+
+\begin{subquestion}[points=3]
+\textbf{The Convolutional Layer.} Consider a single standard convolutional layer with input size $H, W, C$, a stride of 1, and with $C_\text{out}$ filter kernels.
+
+Characterize its mathematical relationships with the following input transformations. 
+Place \filled~in all relevant answers.
+\end{subquestion}
+
+\begin{answer}\noindent
+\setlength{\tabcolsep}{12pt}
+\begin{tabular}{l|c|c|c|c|c}
+\textbf{Transformation} & \rotatebox{90}{\textbf{Global Equivariant}} & \rotatebox{90}{\textbf{Global Invariant}} & \rotatebox{90}{\textbf{Local Equivariant}} & \rotatebox{90}{\textbf{Local Invariant}} & \rotatebox{90}{\textbf{None}} \\
+\hline
+Translation by $\Delta x=1$ & \cbox & \cbox & \cbox & \cbox & \cbox \\
+Translation by $\Delta x=2$ & \cbox & \cbox & \cbox & \cbox & \cbox \\
+Rotation by $30^{\circ}$ & \cbox & \cbox & \cbox & \cbox & \cbox \\
+Rotation by $90^{\circ}$ & \cbox & \cbox & \cbox & \cbox & \cbox \\
+Scale by $2.0\times$ & \cbox & \cbox & \cbox & \cbox & \cbox \\
+Scale by $0.3\times$ & \cbox & \cbox & \cbox & \cbox & \cbox \\
+Reflection (horizontal flip) & \cbox & \cbox & \cbox & \cbox & \cbox \\
+\end{tabular}
+\end{answer}
+
+\pagebreak
+\begin{subquestion}[points=3]
+\textbf{The Max Pooling Layer.} A standard $2 \times 2$ max pooling layer with a stride of 2.
+\end{subquestion}
+
+\begin{answer}\noindent
+\setlength{\tabcolsep}{12pt}
+\begin{tabular}{l|c|c|c|c|c}
+\textbf{Transformation} & \rotatebox{90}{\textbf{Global Equivariant}} & \rotatebox{90}{\textbf{Global Invariant}} & \rotatebox{90}{\textbf{Local Equivariant}} & \rotatebox{90}{\textbf{Local Invariant}} & \rotatebox{90}{\textbf{None}} \\
+\hline
+Translation by $\Delta x=1$ & \cbox & \cbox & \cbox & \cbox & \cbox \\
+Translation by $\Delta x=2$ & \cbox & \cbox & \cbox & \cbox & \cbox \\
+Rotation by $30^{\circ}$ & \cbox & \cbox & \cbox & \cbox & \cbox \\
+Rotation by $90^{\circ}$ & \cbox & \cbox & \cbox & \cbox & \cbox \\
+Scale by $2.0\times$ & \cbox & \cbox & \cbox & \cbox & \cbox \\
+Scale by $0.3\times$ & \cbox & \cbox & \cbox & \cbox & \cbox \\
+Reflection (horizontal flip) & \cbox & \cbox & \cbox & \cbox & \cbox \\
+\end{tabular}
+\end{answer}
+
+\pagebreak
+\begin{subquestion}[points=3]
+\textbf{The Average Pooling Layer.} A standard $2 \times 2$ average pooling layer with a stride of 2.
+\end{subquestion}
+
+\begin{answer}\noindent
+\setlength{\tabcolsep}{12pt}
+\begin{tabular}{l|c|c|c|c|c}
+\textbf{Transformation} & \rotatebox{90}{\textbf{Global Equivariant}} & \rotatebox{90}{\textbf{Global Invariant}} & \rotatebox{90}{\textbf{Local Equivariant}} & \rotatebox{90}{\textbf{Local Invariant}} & \rotatebox{90}{\textbf{None}} \\
+\hline
+Translation by $\Delta x=1$ & \cbox & \cbox & \cbox & \cbox & \cbox \\
+Translation by $\Delta x=2$ & \cbox & \cbox & \cbox & \cbox & \cbox \\
+Rotation by $30^{\circ}$ & \cbox & \cbox & \cbox & \cbox & \cbox \\
+Rotation by $90^{\circ}$ & \cbox & \cbox & \cbox & \cbox & \cbox \\
+Scale by $2.0\times$ & \cbox & \cbox & \cbox & \cbox & \cbox \\
+Scale by $0.3\times$ & \cbox & \cbox & \cbox & \cbox & \cbox \\
+Reflection (horizontal flip) & \cbox & \cbox & \cbox & \cbox & \cbox \\
+\end{tabular}
+\end{answer}
+
+\pagebreak
+\begin{subquestion}[points=3]
+\textbf{The Global Average Pooling Layer.} A layer that takes the mean of all spatial dimensions: $(H, W, C) \rightarrow (C)$, resulting in a 1D vector of length $C$.
+
+Such layers are often used at the end of encoder blocks to provide fixed-length generic features, e.g., to present a $C=256$-dimensional feature to a task-specific head regardless of the prior encoder architecture. For example, \verb|torch.nn.AdaptiveAvgPool2d(1)|.
+\end{subquestion}
+
+\begin{answer}\noindent
+\setlength{\tabcolsep}{12pt}
+\begin{tabular}{l|c|c|c|c|c}
+\textbf{Transformation} & \rotatebox{90}{\textbf{Global Equivariant}} & \rotatebox{90}{\textbf{Global Invariant}} & \rotatebox{90}{\textbf{Local Equivariant}} & \rotatebox{90}{\textbf{Local Invariant}} & \rotatebox{90}{\textbf{None}} \\
+\hline
+Translation by $\Delta x=1$ & \cbox & \cbox & \cbox & \cbox & \cbox \\
+Translation by $\Delta x=2$ & \cbox & \cbox & \cbox & \cbox & \cbox \\
+Rotation by $30^{\circ}$ & \cbox & \cbox & \cbox & \cbox & \cbox \\
+Rotation by $90^{\circ}$ & \cbox & \cbox & \cbox & \cbox & \cbox \\
+Scale by $2.0\times$ & \cbox & \cbox & \cbox & \cbox & \cbox \\
+Scale by $0.3\times$ & \cbox & \cbox & \cbox & \cbox & \cbox \\
+Reflection (horizontal flip) & \cbox & \cbox & \cbox & \cbox & \cbox \\
+\end{tabular}
+\end{answer}
+
+\pagebreak
+\begin{subquestion}[points=3]
+\emph{Putting it all together.} In a real-world computer vision task, a CNN can succeed with objects at different translations, rotations, scales, and reflections. With respect to the learned filter kernels, how does a CNN accommodate these? \textbf{[4--6 sentences]}
+\end{subquestion}
+
+\begin{answer}[height=12]
+Translation:
+
+Rotation:
+
+Scale:
+
+Reflection:
+
+\end{answer}
+
+
+\begin{subquestion}[points=3]
+In a CNN, when is translation equivariance maintained through average pooling? When through max pooling? What effect might this have on classifying a translating input? \textbf{[4--6 sentences]}
+\end{subquestion}
+
+\vspace{0.5em}
+\emph{Another way to think about it:} Suppose I classify birds. If a bird translates within the image but is otherwise identical, will I still receive the same confidence of bird class?
+
+\vspace{0.5em}
+\emph{Note:} It might help to relate different pooling functions to downsampling, and to consider what we know about downsampling, image frequency, and aliasing.
+
+\begin{answer}[height=12]
+Average:
+
+Max:
+\end{answer}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\pagebreak
+\begin{question}[points=5,drawbox=false] 
+Let's return to max pooling. What effects are caused by adding a spatial max pooling layer (stride $\geq2$) between two convolutional layers, where the output with max pooling is some size larger than $1 \times 1 \times C$?
+
+There may be multiple correct answers per question.
+\end{question}
+
+\begin{subquestion}[points=1]
+What happens to the computational cost of training? (Ignore the cost of the max pooling layer itself.)
+\end{subquestion}
+
+\begin{answerlist}
+    \item Increases % Use \item[\filled] to mark
+    \item Stays the same
+    \item Decreases
+\end{answerlist}
+    
+\begin{subquestion}[points=1]
+What happens to the computational cost of testing? (Ignore the cost of the max pooling layer itself.)
+\end{subquestion}
+
+\begin{answerlist}
+    \item Increases
+    \item Stays the same
+    \item Decreases
+\end{answerlist}
+
+\pagebreak
+    
+\begin{subquestion}[points=1]
+In a classification task, what happens to the complexity of the decision boundary? \emph{Note:} here we do not mean computational complexity.
+\end{subquestion}
+
+\begin{answerlist}
+    \item Increases
+    \item Stays the same
+    \item Decreases
+\end{answerlist}
+
+\begin{subquestion}[points=1]
+What happens to the potential for overfitting?
+\end{subquestion}
+    
+\begin{answerlist}
+    \item Increases
+    \item Stays the same
+    \item Decreases
+\end{answerlist}
+
+\begin{subquestion}[points=1]
+What happens to the potential for underfitting?
+\end{subquestion}
+
+\begin{answerlist}
+    \item Increases
+    \item Stays the same
+    \item Decreases
+\end{answerlist}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\pagebreak
+
+\begin{question}[points=8,drawbox=false]
+Neural networks are sensitive to the scale and distribution of intermediate activations. \emph{Normalization layers} attempt to stabilize training by controlling these distributions. There are many approaches, each with different effects.
+
+Consider two approaches, applied after a convolutional layer with $C$ output channels, spatial size $H \times W$, and a mini-batch of $B$ images:
+
+\textbf{Approach A --- Instance Normalization} (Ulyanov et al., 2016). For each image independently, normalize each channel to zero mean and unit variance:
+\[
+\hat{x}_{n,c} = \frac{x_{n,c} - \mu_{n,c}}{\sqrt{\sigma_{n,c}^2 + \epsilon}}, \qquad y_{n,c} = \gamma_c \hat{x}_{n,c} + \beta_c
+\]
+where $\mu_{n,c}$ and $\sigma_{n,c}^2$ are the mean and variance computed over the spatial dimensions $(H \times W)$ of image $n$, channel $c$ only. $\gamma_c$ and $\beta_c$ are learnable parameters.
+
+\textbf{Approach B --- Batch Normalization} (Ioffe \& Szegedy, 2015). For each channel, normalize using statistics computed across the entire mini-batch:
+\[
+\hat{x}_{n,c} = \frac{x_{n,c} - \mu_c}{\sqrt{\sigma_c^2 + \epsilon}}, \qquad y_{n,c} = \gamma_c \hat{x}_{n,c} + \beta_c
+\]
+where $\mu_c$ and $\sigma_c^2$ are computed over all $B$ images and all spatial positions $(H \times W)$ for channel $c$. $\gamma_c$ and $\beta_c$ are learnable parameters. $\epsilon$ is a small constant to stop div.~by zero.
+\end{question}
+
+\begin{subquestion}[points=3]
+Suppose we train two CNNs to classify photographs as either daytime or nighttime, one each using approach A and approach B for normalization. Upon validating our classifier, we find that the network with approach A failed but the B network succeeded.
+
+Why did the A network fail, and why did the B network succeed? Under what conditions within our data loader would the B network also fail? \textbf{[3--4 sentences]}
+\end{subquestion}
+
+\begin{answer}[height=12]
+
+\end{answer}
+
+\pagebreak
+\begin{subquestion}[points=2]
+At test time, we often process one image at a time ($B = 1$). Approach A has no problem here, but Approach B requires batch statistics. Explain how batch normalization handles single-image inference. \textbf{[2--3 sentences]}
+\end{subquestion}
+
+\begin{answer}[height=10]
+
+\end{answer}
+
+\begin{subquestion}[points=3]
+In the code portion, you will train on a small dataset with high data variance. Choosing to use normalization layers (and which ones) can have a significant effect on our result.
+
+As we know, batch normalization estimates population statistics from each mini-batch. When the underlying data has high variance, the per-batch statistics $\mu_c$ and $\sigma_c^2$ can fluctuate significantly from batch to batch. 
+
+Would you expect this to affect the \emph{first} convolutional layer (which sees raw pixels) more or less than \emph{deeper} layers? Why? \textbf{[3--5 sentences]}
+\end{subquestion}
+
+\begin{answer}[height=12]
+
+\end{answer}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\pagebreak
+
+\writefeedback
+
+% \pagebreak
+% \section*{Any additional pages would go here.}
+
+
+\end{document}

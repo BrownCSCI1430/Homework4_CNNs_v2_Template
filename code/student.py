@@ -21,9 +21,9 @@ import numpy as np
 import hyperparameters as hp
 from helpers import visualize_filters, make_filter_video, make_filter_callback
 
-BROWN_ID = 000000000
-torch.manual_seed(BROWN_ID)
-np.random.seed(BROWN_ID)
+BANNER_ID = 000000000 # <- replace with your Banner ID; drop the 'B' prefix
+torch.manual_seed(BANNER_ID)
+np.random.seed(BANNER_ID)
 
 
 # ========================================================================
@@ -157,7 +157,7 @@ def t0_endtoend(classify_15scenes_data, device, approaches):
     Hyperparameters are defined in hp.ENDTOEND_*
     """
     # Reproducible initialization — do not remove
-    torch.manual_seed(BROWN_ID)
+    torch.manual_seed(BANNER_ID)
 
     # TODO:
     #     1. Create a SceneClassifier and move it to device.
@@ -287,7 +287,7 @@ def t1_rotation(rotation_data, device, approaches):
     """Train your encoder with rotation prediction on a single image.
     """
     # Reproducible initialization — do not remove
-    torch.manual_seed(BROWN_ID)
+    torch.manual_seed(BANNER_ID)
 
     # TODO:
     #     1. Create your encoder and build a rotation prediction model:
@@ -326,7 +326,7 @@ def t2_transfer(classify_15scenes_data, device, approaches):
 
     """
     # Reproducible initialization — do not remove
-    torch.manual_seed(BROWN_ID)
+    torch.manual_seed(BANNER_ID)
 
     # TODO:
 
@@ -366,7 +366,7 @@ def t1_classify(classify_data, device, approaches):
     Add a new path to t2_transfer and use approaches['classify'] for saving outputs.
     """
     # Reproducible initialization — do not remove
-    torch.manual_seed(BROWN_ID)
+    torch.manual_seed(BANNER_ID)
 
     pass
 
@@ -382,6 +382,6 @@ def t1_ec_pretrain(device, approaches):
     accuracy on 15-scenes (evaluated via the leaderboard on a secret test set).
     """
     # Reproducible initialization — do not remove
-    torch.manual_seed(BROWN_ID)
+    torch.manual_seed(BANNER_ID)
 
     pass

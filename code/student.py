@@ -136,8 +136,8 @@ class SceneClassifier(nn.Module):
         #     - self.encoder: nn.Module — the convolutional feature extractor
         #     - self.encoder should end with AdaptiveAvgPool2d(1)
         #       so it works at any input resolution
-        #     - self.head: nn.Module — the classification head
-        #         (typically: Flatten -> Linear(encoder_channels, ...) -> ... -> Linear(num_classes))
+        #     - self.head: nn.Module — a single-layer classification head
+        #         (Flatten -> Linear(encoder_channels, num_classes))
         #     - self.encoder_channels: int — number of output channels from encoder
         #     - forward(x) returns logits of shape (batch_size, num_classes)
 
@@ -315,37 +315,6 @@ def t1_rotation(rotation_data, device, approaches):
     #        
     pass
 
-
-# Task 1 Extra Credit: Classification pretraining
-#
-def t1_classify(classify_data, device, approaches):
-    """Train your encoder with binary classification on two images.
-
-    TODO: Same pattern as t1_rotation, but:
-        - The linear head has classify_data.num_classes outputs (2, not 4).
-        - Use hp.CLASSIFY_LR and hp.CLASSIFY_EPOCHS.
-        - Save frames to 'results/filter_frames_classify' (and '_delta' variant).
-        - Save filters to 'results/conv1_filters_classify.png' 
-        - Save training accuracies to approaches['classify'].curve_train
-        - Save encoder to approaches['classify'].weights
-    """
-    pass
-
-
-# Extra Credit: Open-ended self-supervised pretraining
-#
-def t1_ec_pretrain(device, approaches):
-    """Train your encoder with any self-supervised approach you design.
-
-    Use your PretrainingEncoder architecture. The goal: maximize frozen probe
-    accuracy on 15-scenes (evaluated via the leaderboard on a secret test set).
-
-    Save your pretrained encoder weights to 'results/ec_encoder.pt'.
-    Then run t2_transfer to build the frozen probe (ec_frozen.pt).
-    """
-    pass
-
-
 # ========================================================================
 #  TASK 2: Transfer evaluation
 #
@@ -359,6 +328,8 @@ def t2_transfer(classify_15scenes_data, device, approaches):
     Run three experiments (hp.TRANSFER_EPOCHS epochs each) and save your val curves and model weights:
 
     """
+    # Reproducible initialization — do not remove
+    torch.manual_seed(BROWN_ID)
     
     # TODO:
 
@@ -366,7 +337,7 @@ def t2_transfer(classify_15scenes_data, device, approaches):
     #        - Create an untrained encoder with random initial weights.
     #        - FREEZE the encoder: for p in encoder.parameters(): p.requires_grad = False
     #        - Put encoder in eval mode: encoder.eval()
-    #        - Build a classification head: nn.Sequential(encoder, nn.Flatten(1), nn.Linear(out_dim, num_classes))
+    #        - Build a simple linear classification head: nn.Sequential(encoder, nn.Flatten(1), nn.Linear(out_dim, num_classes))
     #        - Optimize ONLY the linear head: your_optimizer(model[-1].parameters(), lr=hp.TRANSFER_HEAD_LR)
     #        - Save train/val accuracies to approaches['frozen_random'].curve_train / .curve_val
     #        - Save model.state_dict() to approaches['frozen_random'].weights
@@ -388,9 +359,32 @@ def t2_transfer(classify_15scenes_data, device, approaches):
     #        - Save train/val accuracies to approaches['finetune'].curve_train / .curve_val
     #        - Save model.state_dict() to approaches['finetune'].weights
 
-    #     4. [Extra Credit] If 'results/ec_encoder.pt' exists, run frozen probe with it:
-    #        - Same workflow as experiment 2, but load from 'results/ec_encoder.pt'.
-    #        - Save train/val accuracies to approaches['ec_frozen'].curve_train / .curve_val
-    #        - Save model.state_dict() to approaches['ec_frozen'].weights
+    pass
+
+
+# Extra Credit: Classification pretraining
+#
+def t1_classify(classify_data, device, approaches):
+    """Train your encoder with binary classification on two images.
+    Add a new path to t2_transfer and use approaches['classify'] for saving outputs.
+    """
+    # Reproducible initialization — do not remove
+    torch.manual_seed(BROWN_ID)
+  
+    pass
+
+
+# Extra Credit: Open-ended self-supervised pretraining
+#
+def t1_ec_pretrain(device, approaches):
+    """Train your encoder with any self-supervised approach you design.
+    Add a new path to t2_transfer and use approaches['ec_frozen'] for saving outputs.
+
+    Feel free to define a new architecture. 
+    The goal: maximize frozen features + linear head
+    accuracy on 15-scenes (evaluated via the leaderboard on a secret test set).
+    """
+    # Reproducible initialization — do not remove
+    torch.manual_seed(BROWN_ID)
 
     pass

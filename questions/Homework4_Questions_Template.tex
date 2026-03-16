@@ -84,7 +84,7 @@ In this question, we will explore what these inductive biases provide and what t
 \begin{itemize}
 \item Recall that an operation is \emph{equivariant} to a transformation if transforming the input to that operation produces a correspondingly transformed output. It is \emph{invariant} if the output does not change at all.
 \item Let's define a \emph{global} property as one that holds across the whole image equally, and a \emph{local} property as one that holds only within a region.
-\item Assume discrete integer shifts on an integer grid and ignore boundary padding artifacts.
+\item Assume discrete integer shifts on an integer grid and ignore any boundary effects (e.g. invalid convolution requiring padding for equal size output).
 \end{itemize}
 
 \end{question}

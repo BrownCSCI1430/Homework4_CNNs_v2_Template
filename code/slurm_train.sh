@@ -1,8 +1,10 @@
 #!/bin/bash
 
 # ============================================================
-# CSCI 1430 - Computer Vision, Brown University
-# SLURM job script for HW4: CNNs
+# Homework 4 - Learning Visual Features with CNNs
+# CSCI1430 - Computer Vision
+# Brown University
+# SLURM job script
 #
 # Usage:
 #   sbatch slurm_train.sh t0_endtoend    # runs Task 0

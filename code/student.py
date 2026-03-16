@@ -99,7 +99,7 @@ def train_loop(model, train_loader, optimizer, loss, epochs,
     """
     train_accs = []
     val_accs = []
-    
+
     # TODO: Implement the training loop. For each epoch:
     #     a. Set model to training mode.
 
@@ -113,7 +113,8 @@ def train_loop(model, train_loader, optimizer, loss, epochs,
     #         f"[{tasklabel}] Epoch {epoch+1}/{epochs}  Train: {train_acc:.3f}  Loss: {avg_loss:.4f}"
     #         (append f"  Val: {val_acc:.3f}" if val_loader is provided)
 
-    #     e. If on_epoch_end is not None, call it: on_epoch_end(epoch, model)
+    #     e. If on_epoch_end is not None, call it at the end of an epoch: 
+    #         on_epoch_end(epoch, model)
 
     return train_accs, val_accs
 
@@ -131,11 +132,11 @@ class SceneClassifier(nn.Module):
 
     def __init__(self, num_classes=15):
         super().__init__()
-            
+
         # TODO: Design a CNN with these requirements:
         #     - self.encoder: nn.Module — the convolutional feature extractor
-        #     - self.encoder should end with AdaptiveAvgPool2d(1)
-        #       so it works at any input resolution
+        #                     This should end with AdaptiveAvgPool2d(1)
+        #                     so it works at any input resolution
         #     - self.head: nn.Module — a single-layer classification head
         #         (Flatten -> Linear(encoder_channels, num_classes))
         #     - self.encoder_channels: int — number of output channels from encoder
@@ -186,7 +187,7 @@ class CropRotationDataset(Dataset):
 
     Hyperparameters are defined in hp.ROTATION_*
 
-    Important: For speed, implement all operations using pytorch functions 
+    Important: For speed, implement all operations using pytorch functions
                after moving the image to the device (GPU).
 
     Arguments:
@@ -204,10 +205,10 @@ class CropRotationDataset(Dataset):
     Note: Unlike SceneDataset, there is no .test_loader or .val_loader — the data are too small.
 
     Simple fixed-size random crops work well for learning filters.
-    Optional augmentations: color jitter, horizontal flip, crops at different 
-    scales (see Asano et al. 2020). 
+    Optional augmentations: color jitter, horizontal flip, crops at different
+    scales (see Asano et al. 2020).
 
-    [EXTRA CREDIT] To implement a classification pretraining task,
+    [EXTRA CREDIT] To implement a classification pretraining task:
 
         - Hyperparameters are defined in hp.CLASSIFY_*
         - Input data live in two directories - Street and Coast
@@ -220,24 +221,19 @@ class CropRotationDataset(Dataset):
                  crop_size=hp.ROTATION_CROP_SIZE, rotation=True,
                  batch_size=hp.ROTATION_BATCH_SIZE):
         # TODO:
-        # 1. Set self.num_crops, self.crop_size, self.rotation.
+        # 1. Set self.num_crops, self.crop_size, self.rotation, self.batch_size
         #
         # 2. Set self.classes and self.num_classes.
         #    rotation=True  -> num_classes = 4 (one per rotation)
         #    rotation=False -> num_classes = number of class subfolders
         #
-        # 3. Load source images as tensors into self.images.
-        #    Use PIL to open each image, convert to a (3, H, W) float tensor
-        #    in [0, 1], and move to device. Handle both flat directories and
-        #    subdirectory layouts. Store class indices in self.class_indices.
+        # 3. Load source images and transfer them to device as tensors.
         #    Note: Most datasets are too large to load all at once.
         #    We have a tiny dataset — just one or two images. So, it's ok.
         #
         # 4. Wrap this Dataset in a DataLoader for batching/shuffling:
         #    self.train_loader = DataLoader(self, batch_size=batch_size,
         #                                  shuffle=True, num_workers=0)
-        #
-        # 5. Store crop parameters for use in __getitem__.
 
         raise NotImplementedError("TODO: implement CropRotationDataset.__init__")
 
@@ -265,7 +261,7 @@ class CropRotationDataset(Dataset):
 #
 class PretrainingEncoder(nn.Module):
     """Design an encoder for self-supervised pretraining.
-        
+
     Our solution uses ~1M parameters. The challenge is learning good features
     with a minimal architecture — not building a big network.
     """
@@ -276,6 +272,7 @@ class PretrainingEncoder(nn.Module):
         # Create your own nn.Module class here. Requirements:
         #    - self.layers must be an nn.Sequential
         #    - self.layers[0] must be a Conv2d(3, ...) — needed for filter visualization
+        #      We use 11 x 11 kernels for the first layer to make this easily visible.
         #    - End with AdaptiveAvgPool2d(1) so output shape is (batch, channels, 1, 1)
 
         raise NotImplementedError
@@ -308,11 +305,11 @@ def t1_rotation(rotation_data, device, approaches):
     #     5. Make filter videos:
     #            make_filter_video('results/filter_frames_rotation', 'results/filters_rotation.mp4')
     #            make_filter_video('results/filter_frames_rotation_delta', 'results/filters_rotation_delta.mp4')
-    
+
     #     6. Save the training accuracy list to approaches['rotation'].curve_train
 
     #     7. Save encoder.state_dict() to approaches['rotation'].weights
-    #        
+    #
     pass
 
 # ========================================================================
@@ -370,7 +367,7 @@ def t1_classify(classify_data, device, approaches):
     """
     # Reproducible initialization — do not remove
     torch.manual_seed(BROWN_ID)
-  
+
     pass
 
 
@@ -380,7 +377,7 @@ def t1_ec_pretrain(device, approaches):
     """Train your encoder with any self-supervised approach you design.
     Add a new path to t2_transfer and use approaches['ec_frozen'] for saving outputs.
 
-    Feel free to define a new architecture. 
+    Feel free to define a new architecture.
     The goal: maximize frozen features + linear head
     accuracy on 15-scenes (evaluated via the leaderboard on a secret test set).
     """

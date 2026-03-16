@@ -97,7 +97,7 @@ if __name__ == '__main__':
     elif args.task == 't2_transfer':
         classify_15scenes_data = SceneDataset(
             os.path.join(args.data, '15-scenes-csci1430'),
-            image_size=ENDTOEND_IMAGE_SIZE, batch_size=TRANSFER_BATCH_SIZE,
+            image_size=TRANSFER_IMAGE_SIZE, batch_size=TRANSFER_BATCH_SIZE,
         )
         t2_transfer(classify_15scenes_data, device, APPROACHES)
 

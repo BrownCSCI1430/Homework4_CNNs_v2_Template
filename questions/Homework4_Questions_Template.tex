@@ -279,14 +279,13 @@ Consider two approaches, applied after a convolutional layer with $C$ output cha
 \[
 \hat{x}_{n,c} = \frac{x_{n,c} - \mu_{n,c}}{\sqrt{\sigma_{n,c}^2 + \epsilon}},
 \]
-where $\mu_{n,c}$ and $\sigma_{n,c}^2$ are the mean and variance computed over the spatial dimensions $(H \times W)$ of image $n$, channel $c$ only.
+where $\mu_{n,c}$ and $\sigma_{n,c}^2$ are the mean and variance computed over the spatial dimensions $(H \times W)$ of image $n$, channel $c$ only. $\epsilon$ is a small constant to stop div.~by zero.
 
 \textbf{Approach B --- Batch Normalization} (Ioffe \& Szegedy, 2015). For each channel, normalize using statistics computed across the entire mini-batch:
 \[
 \hat{x}_{n,c} = \frac{x_{n,c} - \mu_c}{\sqrt{\sigma_c^2 + \epsilon}}, \qquad y_{n,c} = \gamma_c \hat{x}_{n,c} + \beta_c
 \]
-where $\mu_c$ and $\sigma_c^2$ are computed over all $B$ images and all spatial positions $(H \times W)$ for channel $c$. Then, define learnable parameters $\gamma_c$ and $\beta_c$ that produce an affine transform to rescale and reshift the batch distribution per channel. $\epsilon$ is a small constant to stop div.~by zero.
-\end{question}
+where $\mu_c$ and $\sigma_c^2$ are computed over all $B$ images and all spatial positions $(H \times W)$ for channel $c$. Then, define learnable parameters $\gamma_c$ and $\beta_c$ that produce an affine transform to rescale and reshift the batch distribution per channel. \end{question}
 
 \begin{subquestion}[points=3]
 Suppose we train two CNNs to classify photographs as either daytime or nighttime, one each using approach A and approach B for normalization. Upon validating our classifier, we find that the network with approach A failed but the B network succeeded.

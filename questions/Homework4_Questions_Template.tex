@@ -277,15 +277,15 @@ Consider two approaches, applied after a convolutional layer with $C$ output cha
 
 \textbf{Approach A --- Instance Normalization} (Ulyanov et al., 2016). For each image independently, normalize each channel to zero mean and unit variance:
 \[
-\hat{x}_{n,c} = \frac{x_{n,c} - \mu_{n,c}}{\sqrt{\sigma_{n,c}^2 + \epsilon}}, \qquad y_{n,c} = \gamma_c \hat{x}_{n,c} + \beta_c
+\hat{x}_{n,c} = \frac{x_{n,c} - \mu_{n,c}}{\sqrt{\sigma_{n,c}^2 + \epsilon}},
 \]
-where $\mu_{n,c}$ and $\sigma_{n,c}^2$ are the mean and variance computed over the spatial dimensions $(H \times W)$ of image $n$, channel $c$ only. $\gamma_c$ and $\beta_c$ are learnable parameters per channel.
+where $\mu_{n,c}$ and $\sigma_{n,c}^2$ are the mean and variance computed over the spatial dimensions $(H \times W)$ of image $n$, channel $c$ only.
 
 \textbf{Approach B --- Batch Normalization} (Ioffe \& Szegedy, 2015). For each channel, normalize using statistics computed across the entire mini-batch:
 \[
 \hat{x}_{n,c} = \frac{x_{n,c} - \mu_c}{\sqrt{\sigma_c^2 + \epsilon}}, \qquad y_{n,c} = \gamma_c \hat{x}_{n,c} + \beta_c
 \]
-where $\mu_c$ and $\sigma_c^2$ are computed over all $B$ images and all spatial positions $(H \times W)$ for channel $c$. $\gamma_c$ and $\beta_c$ are learnable parameters. $\epsilon$ is a small constant to stop div.~by zero.
+where $\mu_c$ and $\sigma_c^2$ are computed over all $B$ images and all spatial positions $(H \times W)$ for channel $c$. Then, define learnable parameters $\gamma_c$ and $\beta_c$ that produce an affine transform to rescale and reshift the batch distribution per channel. $\epsilon$ is a small constant to stop div.~by zero.
 \end{question}
 
 \begin{subquestion}[points=3]

@@ -86,7 +86,7 @@ if __name__ == '__main__':
     #
     elif args.task == 't1_rotation':
         rotation_data = CropRotationDataset(device,
-            os.path.join(device, args.data, 'single-images', 'train', 'Street'),
+            os.path.join(args.data, 'single-images', 'train', 'Street'),
             num_crops=ROTATION_NUM_CROPS, crop_size=ROTATION_CROP_SIZE,
             rotation=True, batch_size=ROTATION_BATCH_SIZE,
         )

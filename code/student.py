@@ -189,6 +189,7 @@ class CropRotationDataset(Dataset):
 
     Important: For speed, implement all operations using pytorch functions
                after moving the image to the device (GPU).
+               Use the device parameter in __init__ to access the GPU.
 
     Arguments:
         data_dir   -- path to a directory of images (with or without class subfolders)
@@ -217,7 +218,7 @@ class CropRotationDataset(Dataset):
 
     """
 
-    def __init__(self, data_dir, num_crops=hp.ROTATION_NUM_CROPS,
+    def __init__(self, device, data_dir, num_crops=hp.ROTATION_NUM_CROPS,
                  crop_size=hp.ROTATION_CROP_SIZE, rotation=True,
                  batch_size=hp.ROTATION_BATCH_SIZE):
         # TODO:

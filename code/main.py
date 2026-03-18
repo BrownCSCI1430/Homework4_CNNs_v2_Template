@@ -85,8 +85,8 @@ if __name__ == '__main__':
     # Task 1: Rotation pretraining (1 image)
     #
     elif args.task == 't1_rotation':
-        rotation_data = CropRotationDataset(
-            os.path.join(args.data, 'single-images', 'train', 'Street'),
+        rotation_data = CropRotationDataset(device,
+            os.path.join(device, args.data, 'single-images', 'train', 'Street'),
             num_crops=ROTATION_NUM_CROPS, crop_size=ROTATION_CROP_SIZE,
             rotation=True, batch_size=ROTATION_BATCH_SIZE,
         )
@@ -104,7 +104,7 @@ if __name__ == '__main__':
     # Extra Credit: Classification pretraining (2 images)
     #
     elif args.task == 't1_classify':
-        classify_data = CropRotationDataset(
+        classify_data = CropRotationDataset(device, 
             os.path.join(args.data, 'single-images', 'train'),
             num_crops=CLASSIFY_NUM_CROPS, crop_size=CLASSIFY_CROP_SIZE,
             rotation=False, batch_size=CLASSIFY_BATCH_SIZE,

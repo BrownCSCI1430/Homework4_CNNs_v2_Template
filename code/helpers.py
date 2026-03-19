@@ -160,10 +160,39 @@ def make_filter_callback(encoder, frame_dir, filter_save_path):
         callback = make_filter_callback(encoder, 'results/filter_frames_rotation',
                                         'results/conv1_filters_rotation.png')
         train_loop(..., on_epoch_end=callback)
+
+    Saves both raw filters and a delta image (learned - init) each epoch.
+    The delta version is the required deliverable: it shows what the network
+    learned relative to its random initialization, and is much easier to see.
     """
     w0 = encoder.layers[0].weight.data.cpu().clone()
     w_prev = [w0.clone()]
+    # Derive delta save path from filter_save_path: foo.png -> foo_delta.png
+    base, ext = os.path.splitext(filter_save_path)
+    delta_save_path = base + '_delta' + ext
+
     def callback(epoch, model):
         _conv1_diagnostics(encoder, w0, w_prev, epoch, frame_dir)
         visualize_filters(encoder, save_path=filter_save_path)
+        # Save the delta (w - w0) as a separate image
+        w = encoder.layers[0].weight.data.cpu()
+        delta = w - w0
+        n = delta.shape[0]
+        cols = int(n ** 0.5) + 1
+        rows = (n + cols - 1) // cols
+        fig, axes = plt.subplots(rows, cols, figsize=(cols * 1.5, rows * 1.5))
+        for i, ax in enumerate(axes.flat):
+            if i < n:
+                f = delta[i]
+                if f.shape[0] == 3:
+                    f = f.permute(1, 2, 0)
+                    f = (f - f.min()) / (f.max() - f.min() + 1e-8)
+                else:
+                    f = f[0]
+                ax.imshow(f.numpy(), cmap='RdBu_r' if f.ndim == 2 else None)
+            ax.axis('off')
+        fig.suptitle(f'Learned Delta (w - w0) -- Epoch {epoch + 1}')
+        fig.savefig(delta_save_path, dpi=100, bbox_inches='tight')
+        plt.close(fig)
+
     return callback

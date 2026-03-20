@@ -1,5 +1,5 @@
 """
-Homework 4 - CNNs: Pretraining an Encoder
+Homework 4 - Learning Visual Features with CNNs
 CSCI1430 - Computer Vision
 Brown University
 """
